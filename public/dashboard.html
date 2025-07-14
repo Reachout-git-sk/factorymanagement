@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard</title>
+  <script type="module" src="../src/scripts/ui.js"></script>
+  <script type="module" src="../src/scripts/firestore.js"></script>
+  <script type="module">
+    import { getAllEntries, submitEntry } from "../src/scripts/firestore.js";
+    import { exportToCSV } from "../src/scripts/utils.js";
+    import { showRoleUI } from "../src/scripts/ui.js";
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      showRoleUI();
+
+      const entries = await getAllEntries();
+      renderTable(entries);
+    });
+
+    window.submitForm = async () => {
+      const data = {
+        dept: document.getElementById("department").value,
+        batch: document.getElementById("batch").value,
+        param1: document.getElementById("param1").value,
+        param2: document.getElementById("param2").value,
+        param3: document.getElementById("param3").value,
+        param4: document.getElementById("param4").value,
+        param5: document.getElementById("param5").value,
+        param6: document.getElementById("param6").value,
+      };
+
+      await submitEntry(data);
+      alert("Data Submitted!");
+    };
+
+    window.downloadCSV = async () => {
+      const entries = await getAllEntries();
+      exportToCSV(entries);
+    };
+
+    function renderTable(entries) {
+      const tbody = document.getElementById("entryRows");
+      tbody.innerHTML = "";
+      entries.forEach(e => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td class="border px-2">${e.dept}</td>
+          <td class="border px-2">${e.batch}</td>
+          <td class="border px-2">${e.param1}</td>
+          <td class="border px-2">${e.param2}</td>
+          <td class="border px-2">${e.param3}</td>
+          <td class="border px-2">${e.param4}</td>
+          <td class="border px-2">${e.param5}</td>
+          <td class="border px-2">${e.param6}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+  </script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.2/dist/tailwind.min.css" rel="stylesheet" />
+</head>
+<body class="bg-gray-50 p-6">
+  <div class="flex justify-between mb-4">
+    <h1 class="text-xl font-bold">Factory Inventory Dashboard</h1>
+    <button onclick="logoutUser()" class="bg-red-600 text-white px-3 py-1 rounded">Logout</button>
+  </div>
+
+  <div id="userRoleDisplay" class="text-sm text-gray-600 mb-2"></div>
+
+  <div class="grid grid-cols-2 gap-4 mb-4">
+    <input id="department" placeholder="Department" class="p-2 border rounded" />
+    <input id="batch" placeholder="Batch Number" class="p-2 border rounded" />
+    <input id="param1" placeholder="Quantity" class="p-2 border rounded" />
+    <input id="param2" placeholder="Defect Count" class="p-2 border rounded" />
+    <input id="param3" placeholder="Machine ID" class="p-2 border rounded" />
+    <input id="param4" placeholder="Shift" class="p-2 border rounded" />
+    <input id="param5" placeholder="Operator" class="p-2 border rounded" />
+    <input id="param6" placeholder="Remarks" class="p-2 border rounded" />
+  </div>
+
+  <button onclick="submitForm()" class="bg-green-600 text-white px-4 py-2 rounded mb-4">Submit</button>
+  <button onclick="downloadCSV()" class="bg-blue-600 text-white px-4 py-2 rounded ml-2">Download CSV</button>
+
+  <table class="w-full mt-6 table-auto border-collapse border">
+    <thead>
+      <tr class="bg-gray-200">
+        <th class="border px-2">Dept</th>
+        <th class="border px-2">Batch</th>
+        <th class="border px-2">Param1</th>
+        <th class="border px-2">Param2</th>
+        <th class="border px-2">Param3</th>
+        <th class="border px-2">Param4</th>
+        <th class="border px-2">Param5</th>
+        <th class="border px-2">Param6</th>
+      </tr>
+    </thead>
+    <tbody id="entryRows"></tbody>
+  </table>
+</body>
+</html>
